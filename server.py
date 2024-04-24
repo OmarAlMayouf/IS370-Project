@@ -8,7 +8,7 @@ def main():
     try:
         soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #creating socket
         soc.bind((host, port)) #mapping the address and port to the server
-        soc.listen(5) #listen for connection
+        soc.listen(5) #listen for connection >> queue up to 5 requests
         print(f"Server listening on {host}:{port}")
         
         while True:
