@@ -1,21 +1,22 @@
 import yaml
 
-with open("menuPrices.yaml", "r")as f:
-    data = yaml.safe_load(f)
+def load_menu_from_file(file_path):
+    with open(file_path, 'r') as file:
+        menu_data = yaml.safe_load(file)
+    return menu_data
 
-def find (name):
-    
-    if name not in data.keys():
-        print("Error")
-    else: 
-        for i in data:
-            if i == name:
-                for k in data[i]:
-                    if k == 'price':
-                        print(f"Dish name: {name}")
-                        print(f"Price: {data[i][k]}")
-                    elif k == 'quantity':
-                        print(f"Quantity: {data[i][k]}")
-                break
+def save_menu_to_file(menu_data, file_path):
+    with open(file_path, 'w') as file:
+        yaml.dump(menu_data, file)
 
-find("Burger")
+menu_file_path = 'menuPrices.yaml' # path of the file
+
+menu_data = load_menu_from_file(menu_file_path) # dictionary data structure
+
+new_item = {"Coke": {"price": 3, "quantity": 10}}  # adding a new item
+menu_data.update(new_item)
+
+
+save_menu_to_file(menu_data, menu_file_path) # save menu to file
+
+print(menu_data)
