@@ -77,7 +77,7 @@ def handle_client(client_socket):
                 client_socket.sendall(b"[*] Enter item name: ")
                 name = client_socket.recv(1024).decode().strip()
                 client_socket.sendall(b"[*] Enter item Price: ")
-                price = int(client_socket.recv(1024).decode().strip())
+                price = float(client_socket.recv(1024).decode().strip())
                 client_socket.sendall(b"[*] Enter item Quantity: ")
                 quantity = int(client_socket.recv(1024).decode().strip())
                 if quantity >= 0 and price >= 0:
@@ -96,7 +96,7 @@ def handle_client(client_socket):
                 price = client_socket.recv(1024).decode().strip()
                 
                 if price.isdigit():
-                    price = int(price)
+                    price = float(price)
                     if price >= 0:
                         if update_price(menu_file_path, name, price):
                             client_socket.sendall(b"1")  # Success
