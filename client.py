@@ -41,10 +41,62 @@ def handle_owner_authentication(client_socket):
         options = client_socket.recv(1024).decode().strip()
         print(t.yellow,options,t.end,sep="")
         
-        # continue input here ... 
-        
-    else:
-        print(t.red,response,t.end,sep="")
+        choice = input("    -> ")
+        client_socket.sendall(choice.encode())
+        response = client_socket.recv(1024).decode().strip() # add item step 1
+        if response == "[-] Invalid input":
+            print(t.red,response,t.end,sep="")
+        elif choice == "1":
+            print(t.yellow,response,t.end,sep="")
+            name = input("    -> ")
+            client_socket.sendall(name.encode()) # send item name
+            response = client_socket.recv(1024).decode().strip()
+            print(t.yellow,response,t.end,sep="")
+            price = int(input("    -> "))
+            client_socket.sendall(str(price).encode()) # send item price
+            
+            response = client_socket.recv(1024).decode().strip()
+            print(t.yellow,response,t.end,sep="")
+            quantity = int(input("    -> "))
+            client_socket.sendall(str(quantity).encode()) # send item quantity
+            
+            response = client_socket.recv(1024).decode().strip()
+            print(t.green,response,t.end,sep="") # added successfully
+        elif choice == "2":
+            print(t.yellow,response,t.end,sep="")
+            name = input("    -> ")
+            client_socket.sendall(name.encode()) # send item name
+            response = client_socket.recv(1024).decode().strip()
+            print(t.yellow,response,t.end,sep="")
+            price = input("    -> ")
+            client_socket.sendall(price.encode()) # send item price
+            response = client_socket.recv(1024).decode().strip()
+            print(response)
+            if response == "1":
+                print(f"{t.green}[+] Price updated for {name} to {price}{t.end}")
+            elif response == "0":
+                print(f"{t.red}[-] Item {name} not found in the menu{t.end}")
+            elif response == "-1":
+                print(f"{t.red}[-] Invalid price format{t.end}")
+            
+        elif choice == "3":
+            print(t.yellow,response,t.end,sep="")
+            name = input("    -> ")
+            client_socket.sendall(name.encode()) # send item name
+            response = client_socket.recv(1024).decode().strip()
+            print(t.yellow,response,t.end,sep="")
+            quantity = input("    -> ")
+            client_socket.sendall(quantity.encode()) # send item quantity
+            response = client_socket.recv(1024).decode().strip()
+            
+            if response == "1":
+                print(f"{t.green}[+] Quantity updated for {name} to {quantity}{t.end}")
+            elif response == "0":
+                print(f"{t.red}[-] Item {name} not found in the menu{t.end}")
+            elif response == "-1":
+                print(f"{t.red}[-] Invalid quantity format{t.end}")
+            else:
+                print(t.red,response,t.end,sep="")
 
 def receive_menu(client_socket):
     menu_data = client_socket.recv(1024)  # Receive menu data with appropriate buffer size

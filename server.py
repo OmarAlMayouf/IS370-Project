@@ -16,21 +16,39 @@ def save_menu_to_file(menu_data, file_path):
     with open(file_path, 'w') as file:
         yaml.dump(menu_data, file)
 
+def update_price(file_path, item_name, new_price):
+
+    menu = load_menu_from_file(file_path)
+    
+    if item_name in menu:
+        menu[item_name]['price'] = new_price
+        save_menu_to_file(menu, menu_file_path)
+        return True
+    else:
+        return False
+
+def update_quantity(file_path, item_name, new_quan):
+
+    menu = load_menu_from_file(file_path)
+    
+    if item_name in menu:
+        menu[item_name]['quantity'] = new_quan
+        save_menu_to_file(menu, menu_file_path)
+        return True
+    else:
+        return False
+
 def authenticate_owner(client_socket):
     client_socket.sendall(b"[*] Please enter your username: ")
     username = client_socket.recv(1024).decode().strip()
-    print(f"username : {username}")
     
     client_socket.sendall(b"[*] Please enter your password: ")
     password = client_socket.recv(1024).decode().strip()
-    print(f"password : {password}")
     
     if username in owner_credentials and owner_credentials[username] == password:
         return True, username
     else:
         return False, None
-
-
 
 def handle_client(client_socket):
     print("Connection established with a client.")
@@ -41,40 +59,71 @@ def handle_client(client_socket):
     if choice == '1':
         authenticated, username = authenticate_owner(client_socket)
         if authenticated:
-            print("Owner authenticated.")
             client_socket.sendall(b"[+] Owner authenticated. You have privileges.")
             client_socket.sendall(username.encode())
             client_socket.recv(1024).decode().strip()
             client_socket.sendall(b"\n[#] 1. Add Item\n[#] 2. Update Price\n[#] 3. Update Quantity\n[#] 4. Delete Item\n[#] 5. Exit\n[*] Enter your choice: ")
             choice = client_socket.recv(1024).decode().strip()
-            if choice == 1:
-                print("1")
-                client_socket.sendall(b"[*] Enter Item name: ")
+            if choice == "1":
+                client_socket.sendall(b"[*] Enter item name: ")
                 name = client_socket.recv(1024).decode().strip()
-                client_socket.sendall(b"[*] Enter Item Price: ")
-                Price = client_socket.recv(1024).decode().strip()
-                client_socket.sendall(b"[*] Enter Item Quantity: ")
-                Quantity = client_socket.recv(1024).decode().strip()
-            elif choice == 2:
-                print("2")
-                return
-            elif choice == 3:
-                print("3")
-                return
-            elif choice == 4:
+                client_socket.sendall(b"[*] Enter item Price: ")
+                price = int(client_socket.recv(1024).decode().strip())
+                client_socket.sendall(b"[*] Enter item Quantity: ")
+                quantity = int(client_socket.recv(1024).decode().strip())
+                new_item = {name: {"price": price, "quantity": quantity}}
+                menu = load_menu_from_file(menu_file_path)
+                menu.update(new_item)
+                save_menu_to_file(menu, menu_file_path)
+                client_socket.sendall(b"[+] successfully added!")
+                
+            elif choice == "2":
+                client_socket.sendall(b"[*] Enter item name: ")
+                name = client_socket.recv(1024).decode().strip()
+                client_socket.sendall(b"[*] Enter new item price: ")
+                price = client_socket.recv(1024).decode().strip()
+                
+                if price.isdigit():
+                    price = int(price)
+                    if price >= 0:
+                        if update_price(menu_file_path, name, price):
+                            client_socket.sendall(b"1")  # Success
+                        else:
+                            client_socket.sendall(b"0")  # Failure (item not found)
+                    else:
+                        client_socket.sendall(b"-1")  # Failure (negative price)
+                else:
+                    client_socket.sendall(b"-1")  # Failure (invalid price format)
+                    
+            elif choice == "3":
+                client_socket.sendall(b"[*] Enter item name: ")
+                name = client_socket.recv(1024).decode().strip()
+
+                client_socket.sendall(b"[*] Enter new item quantity: ")
+                quantity_response = client_socket.recv(1024).decode().strip()
+                if quantity_response.isdigit():
+                    quantity = int(quantity_response)
+                    if quantity >= 0:
+                        if update_quantity(menu_file_path, name, quantity):
+                            client_socket.sendall(b"1")  # Success
+                        else:
+                            client_socket.sendall(b"0")  # Failure (item not found)
+                    else:
+                        client_socket.sendall(b"-1")  # Failure (negative quantity)
+                else:
+                    client_socket.sendall(b"-1")  # Failure (invalid quantity format)
+
+            elif choice == "4":
                 print("4")
                 return
-            elif choice == 5:
+            elif choice == "5":
                 print("5")
                 return
             else:
-                client_socket.sendall(b"[-] Invalid input.")
-                print("Invalid input")
+                client_socket.sendall(b"[-] Invalid input")
         else:
             client_socket.sendall(b"[-] Failed to authenticate as owner.")
-            print("Owner authentication failed.")
     elif choice == '2':
-        print("Customer connected.")
         menu = load_menu_from_file(menu_file_path)
         menu = pickle.dumps(menu)  # Serialize menu data
         client_socket.sendall(menu)
@@ -93,9 +142,6 @@ def main():
 
         while True:
             client_socket, client_address = soc.accept()  # Accept connection
-            print(f"Connection from {client_address}")
-
-            # Handle client communication in a separate thread
             handle_client(client_socket)
 
     except Exception as e:
