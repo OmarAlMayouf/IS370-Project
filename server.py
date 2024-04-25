@@ -38,6 +38,15 @@ def update_quantity(file_path, item_name, new_quan):
     else:
         return False
 
+def delete_item(file_path, item_name):
+    menu = load_menu_from_file(file_path)
+    if item_name in menu:
+        del menu[item_name]
+        save_menu_to_file(menu, file_path)
+        return True
+    else:
+        return False
+
 def authenticate_owner(client_socket):
     client_socket.sendall(b"[*] Please enter your username: ")
     username = client_socket.recv(1024).decode().strip()
@@ -71,11 +80,14 @@ def handle_client(client_socket):
                 price = int(client_socket.recv(1024).decode().strip())
                 client_socket.sendall(b"[*] Enter item Quantity: ")
                 quantity = int(client_socket.recv(1024).decode().strip())
-                new_item = {name: {"price": price, "quantity": quantity}}
-                menu = load_menu_from_file(menu_file_path)
-                menu.update(new_item)
-                save_menu_to_file(menu, menu_file_path)
-                client_socket.sendall(b"[+] successfully added!")
+                if quantity >= 0 and price >= 0:
+                    new_item = {name: {"price": price, "quantity": quantity}}
+                    menu = load_menu_from_file(menu_file_path)
+                    menu.update(new_item)
+                    save_menu_to_file(menu, menu_file_path)
+                    client_socket.sendall(b"1")
+                else:
+                    client_socket.sendall(b"0")
                 
             elif choice == "2":
                 client_socket.sendall(b"[*] Enter item name: ")
@@ -114,15 +126,18 @@ def handle_client(client_socket):
                     client_socket.sendall(b"-1")  # Failure (invalid quantity format)
 
             elif choice == "4":
-                print("4")
-                return
+                client_socket.sendall(b"[*] Enter item name: ")
+                name = client_socket.recv(1024).decode().strip()
+                if delete_item(menu_file_path, name):
+                    client_socket.sendall(b"1")
+                else:
+                    client_socket.sendall(b"0")
             elif choice == "5":
                 print("5")
-                return
             else:
                 client_socket.sendall(b"[-] Invalid input")
         else:
-            client_socket.sendall(b"[-] Failed to authenticate as owner.")
+            client_socket.sendall(b"[-] Failed to authenticate as owner")
     elif choice == '2':
         menu = load_menu_from_file(menu_file_path)
         menu = pickle.dumps(menu)  # Serialize menu data
