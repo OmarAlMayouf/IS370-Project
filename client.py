@@ -7,6 +7,7 @@ class TextColor:
     yellow = "\u001b[0;33m"
     end = "\u001b[0m"
     cyan = "\u001b[0;36m"
+    bold = "\u001b[1m"
 
 t = TextColor
 
@@ -33,6 +34,15 @@ def handle_owner_authentication(client_socket):
     response = client_socket.recv(1024).decode().strip()
     if response == "[+] Owner authenticated. You have privileges.":
         print(t.green,response,t.end,sep="")
+        username = client_socket.recv(1024).decode().strip()
+        print(t.green,"[+] Hello ",username,t.end,sep="")
+        client_socket.sendall(b"message") # to not get the next message printed with hello idk why tho but this works
+        
+        options = client_socket.recv(1024).decode().strip()
+        print(t.yellow,options,t.end,sep="")
+        
+        # continue input here ... 
+        
     else:
         print(t.red,response,t.end,sep="")
 
@@ -49,7 +59,7 @@ def customer_order_menu(client_socket):
 def main():
     try:
         client_socket = connect_to_server()
-        print(f"{t.cyan}\nWelcome to the Food Delivery Network!{t.end}")
+        print(f"{t.cyan}{t.bold}\nWelcome to the Food Delivery Network!{t.end}")
         
         # Receive login method options from server
         print(t.yellow,client_socket.recv(1024).decode().strip(),t.end,sep="")

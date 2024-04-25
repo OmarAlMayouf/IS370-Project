@@ -20,14 +20,15 @@ def authenticate_owner(client_socket):
     client_socket.sendall(b"[*] Please enter your username: ")
     username = client_socket.recv(1024).decode().strip()
     print(f"username : {username}")
+    
     client_socket.sendall(b"[*] Please enter your password: ")
     password = client_socket.recv(1024).decode().strip()
     print(f"password : {password}")
     
     if username in owner_credentials and owner_credentials[username] == password:
-        return True
+        return True, username
     else:
-        return False
+        return False, None
 
 
 
@@ -38,9 +39,37 @@ def handle_client(client_socket):
     client_socket.sendall(b"[#] Login as a...\n[#] 1. Owner\n[#] 2. Customer\n[*] Enter your choice: ")
     choice = client_socket.recv(1024).decode().strip()
     if choice == '1':
-        if authenticate_owner(client_socket):
-            client_socket.sendall(b"[+] Owner authenticated. You have privileges.")
+        authenticated, username = authenticate_owner(client_socket)
+        if authenticated:
             print("Owner authenticated.")
+            client_socket.sendall(b"[+] Owner authenticated. You have privileges.")
+            client_socket.sendall(username.encode())
+            client_socket.recv(1024).decode().strip()
+            client_socket.sendall(b"\n[#] 1. Add Item\n[#] 2. Update Price\n[#] 3. Update Quantity\n[#] 4. Delete Item\n[#] 5. Exit\n[*] Enter your choice: ")
+            choice = client_socket.recv(1024).decode().strip()
+            if choice == 1:
+                print("1")
+                client_socket.sendall(b"[*] Enter Item name: ")
+                name = client_socket.recv(1024).decode().strip()
+                client_socket.sendall(b"[*] Enter Item Price: ")
+                Price = client_socket.recv(1024).decode().strip()
+                client_socket.sendall(b"[*] Enter Item Quantity: ")
+                Quantity = client_socket.recv(1024).decode().strip()
+            elif choice == 2:
+                print("2")
+                return
+            elif choice == 3:
+                print("3")
+                return
+            elif choice == 4:
+                print("4")
+                return
+            elif choice == 5:
+                print("5")
+                return
+            else:
+                client_socket.sendall(b"[-] Invalid input.")
+                print("Invalid input")
         else:
             client_socket.sendall(b"[-] Failed to authenticate as owner.")
             print("Owner authentication failed.")
