@@ -1,6 +1,7 @@
 import json
 import pickle
 import socket
+import random
 
 host = '127.0.0.1'  # server address
 port = 12345  # server port
@@ -54,6 +55,26 @@ def authenticate_owner(client_socket):
         return True, username
     else:
         return False, None
+    
+def get_itemname(order):
+    list = {}
+    counter = 1
+    menu = load_menu_from_file(menu_file_path)
+    for i in menu:
+        new_item = {str(counter): i}
+        list.update(new_item)
+        counter +=1
+    for number in list:
+        if number == order:
+            return list[number]
+    return -1
+
+def get_quantity(name):
+    menu = load_menu_from_file(menu_file_path)
+    for i in menu:
+        if i == name:
+            return menu[i]['quantity']
+    return 0
 
 def handle_client(client_socket):
     print("Connection established with a client.")
@@ -106,7 +127,6 @@ def handle_client(client_socket):
             elif choice == "3":
                 client_socket.sendall(b"[*] Enter item name: ")
                 name = client_socket.recv(1024).decode().strip()
-
                 client_socket.sendall(b"[*] Enter new item quantity: ")
                 quantity_response = client_socket.recv(1024).decode().strip()
                 if quantity_response.isdigit():
@@ -138,6 +158,71 @@ def handle_client(client_socket):
         menu = load_menu_from_file(menu_file_path)
         menu = pickle.dumps(menu)  # Serialize menu data
         client_socket.sendall(menu)
+        
+        
+        client_socket.sendall(b"[*] What would you like to order? (-1 to exit)")
+        order = client_socket.recv(1024).decode().strip()
+        if order != "-1":
+            item_name = get_itemname(order)
+            if item_name != -1:
+                max = get_quantity(item_name)
+                syntax = f"[*] Please enter a quantity (Max. {max})"
+                client_socket.sendall(syntax.encode())
+                quantity = client_socket.recv(1024).decode().strip()
+                if quantity.isdigit():
+                    if int(quantity) < 1 or int(quantity) > int(max):
+                        client_socket.sendall(b"[-] Invalid amount")
+                    else:
+                        client_socket.sendall(b"[*] Would you like to add anything else? (1.yes / 2.no)")
+                        choice = client_socket.recv(1024).decode().strip()
+                        if choice.isdigit():
+                            if int(choice) == 2:
+                                menu = load_menu_from_file(menu_file_path)
+                                total_price = int(quantity) * float(menu[item_name]['price'])
+                                string_total_price = f"[#] Total price for {quantity} {item_name}(s) is {float(total_price)} SR"
+                                client_socket.sendall(string_total_price.encode())
+                                client_socket.sendall("[#] Please fill your address\n[*] Enter your area: ".encode())
+                                area = client_socket.recv(1024).decode().strip()
+                                client_socket.sendall("[*] Enter your street: ".encode())
+                                street = client_socket.recv(1024).decode().strip()
+                                client_socket.sendall("[*] Enter your home/apt number: ".encode())
+                                number = client_socket.recv(1024).decode().strip()
+                                if not number.isdigit():
+                                    client_socket.sendall(b"[-] Invalid input format")
+                                else:
+                                    payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
+                                    client_socket.sendall(payment.encode())
+                                    choice = client_socket.recv(1024).decode().strip()
+                                    if choice != "1":
+                                        client_socket.sendall(b"[-] Invalid input format")
+                                    else:
+                                        address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
+                                        summary = f"[#] Your order summary\n[#] Order: {quantity} {item_name}(s)\n[#] total price: {total_price} SR\n[#] Address: {address}"
+                                        client_socket.sendall(summary.encode())
+                                        client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
+                                        confirmation = client_socket.recv(1024).decode().strip()
+                                        if confirmation != "1" and confirmation != "2":
+                                            client_socket.sendall(b"[-] Invalid input format")
+                                        elif confirmation == "1":
+                                            number = random.randint(1000000,1500000)
+                                            number2 = random.randint(18,35)
+                                            recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
+                                            client_socket.sendall(recipt.encode())
+                                        elif confirmation == "2":
+                                            client_socket.sendall(b"[-] Order Cancelled")
+                            elif int(choice) == 1:
+                                print("loop")
+                            else:
+                                client_socket.sendall(b"[-] Invalid input format Please choose 1 or 2")
+                        else:
+                            client_socket.sendall(b"[-] Invalid input format")
+                            
+                else:
+                    client_socket.sendall(b"[-] Invalid input format")
+            else:
+                client_socket.sendall(b"[-] No such order with this number")
+        else:
+            print("-1")
     else:
         print("Invalid choice.")
 
