@@ -8,6 +8,7 @@ class TextColor:
     end = "\u001b[0m"
     cyan = "\u001b[0;36m"
     bold = "\u001b[1m"
+    magneta = "\u001b[0;35m"
 
 t = TextColor
 
@@ -19,6 +20,27 @@ def connect_to_server():
     client_socket.connect((host, port))
     print("Connected to server at", host + ":" + str(port))
     return client_socket
+
+def printGUI(menu):
+    print(f"{t.magneta}")
+    print("#" * 70)
+    print(f"{t.end}", end="")
+    print(f"{t.magneta}#{t.end}", end="")
+    print("\tItem\t\t\t\t\tPrice\t\t     ", end="")
+    print(f"{t.magneta}#{t.end}")
+    print(f"{t.magneta}#{t.end}", end="")
+    print("-" * 68, end="")
+    print(f"{t.magneta}#{t.end}")
+
+    for item, i in menu.items():
+        print(f"{t.magneta}#{t.end}", end="")
+        print(f"\t{item.ljust(40, ' ')}{str(i['price']).ljust(21, ' ')}", end="")
+        print(f"{t.magneta}#{t.end}")
+
+    print(f"{t.magneta}", end="")
+    print("#" * 70)
+    print(f"{t.end}")
+
 
 def handle_owner_authentication(client_socket):
     response = client_socket.recv(1024).decode().strip() # enter username
@@ -123,8 +145,7 @@ def receive_menu(client_socket):
 
 def customer_order_menu(client_socket):
     menu = receive_menu(client_socket)
-    for item, price in menu.items():
-        print(f"{item}: {price}")
+    printGUI(menu)
 
 def main():
     try:
