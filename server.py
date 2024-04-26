@@ -206,6 +206,7 @@ def handle_client(client_socket):
                                         elif confirmation == "1":
                                             number = random.randint(1000000,1500000)
                                             number2 = random.randint(18,35)
+                                            print(f"New Order #{number}")
                                             recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
                                             client_socket.sendall(recipt.encode())
                                         elif confirmation == "2":
