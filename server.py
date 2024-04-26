@@ -1,25 +1,23 @@
+import json
 import pickle
 import socket
-import yaml
 
 host = '127.0.0.1'  # server address
 port = 12345  # server port
-menu_file_path = 'menuPrices.yaml'  # path of the file
+menu_file_path = 'menu.json'  # path of the file
 owner_credentials = {"admin": "admin"}
 
 def load_menu_from_file(file_path):
     with open(file_path, 'r') as file:
-        menu_data = yaml.safe_load(file)
+        menu_data = json.load(file)
     return menu_data
 
 def save_menu_to_file(menu_data, file_path):
     with open(file_path, 'w') as file:
-        yaml.dump(menu_data, file)
+        json.dump(menu_data, file, indent=4)
 
 def update_price(file_path, item_name, new_price):
-
     menu = load_menu_from_file(file_path)
-    
     if item_name in menu:
         menu[item_name]['price'] = new_price
         save_menu_to_file(menu, menu_file_path)
@@ -28,9 +26,7 @@ def update_price(file_path, item_name, new_price):
         return False
 
 def update_quantity(file_path, item_name, new_quan):
-
     menu = load_menu_from_file(file_path)
-    
     if item_name in menu:
         menu[item_name]['quantity'] = new_quan
         save_menu_to_file(menu, menu_file_path)
