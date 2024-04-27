@@ -24,7 +24,7 @@ def connect_to_server():
     return client_socket
 
 def clear_terminal():
-    for i in range(2, 0, -1):
+    for i in range(5, 0, -1):
         print(f"\r{t.red}clearing in {i} seconds...{t.end}", end='', flush=True)
         time.sleep(1)
     print("\r", end='')
@@ -35,7 +35,7 @@ def printGUI(menu):
     print(f"{t.magneta}\n{'#' * 70}\n{t.end}{t.magneta}#{t.end}\tItem\t\t\t\t\tPrice\t\t     {t.magneta}#{t.end}\n{separator_line}")
     conuter = 1
     for item, i in menu.items():
-        print(f"{t.magneta}#{t.end}\t{conuter}.{item.ljust(39, ' ')}{str(i['price']).ljust(20, ' ')}{t.magneta}#{t.end}")
+        print(f"{t.magneta}#{t.end}\t{str(conuter).rjust(2, ' ')}.{item.ljust(38, ' ')}{str(i['price']).ljust(20, ' ')}{t.magneta}#{t.end}")
         conuter+=1
     print(f"{t.magneta}{'#' * 70}\n{t.end}")
 
