@@ -1,5 +1,7 @@
 import pickle
 import socket
+import os
+import time
 
 class TextColor:
     red = "\u001b[0;31m"
@@ -20,6 +22,12 @@ def connect_to_server():
     client_socket.connect((host, port))
     print("Connected to server at", host + ":" + str(port))
     return client_socket
+
+def clear_terminal():
+    for i in range(5, 0, -1):
+        print(f"{t.red}clearing in {i} seconds...{t.end}")
+        time.sleep(1)
+    os.system('cls')
 
 def printGUI(menu):
     separator_line = f"{t.magneta}#{t.end}" + "-" * 68 + f"{t.magneta}#{t.end}"
@@ -141,7 +149,7 @@ def customer_order_menu(client_socket):
         print(f"{t.cyan}{t.bold}GoodBye !{t.end}",sep="")
         client_socket.sendall(order.encode())
     elif not order.isdigit():
-        print(f"{t.red}Invalid input format{t.end}")
+        print(f"{t.red}[-] Invalid input format{t.end}")
     else:
         client_socket.sendall(order.encode())
         response = client_socket.recv(1024).decode().strip()
@@ -201,24 +209,32 @@ def customer_order_menu(client_socket):
     
 def main():
     try:
-        client_socket = connect_to_server()
-        print(f"{t.cyan}{t.bold}\nWelcome to the Food Delivery Network!{t.end}")
-        
-        # Receive login method options from server
-        print(t.yellow,client_socket.recv(1024).decode().strip(),t.end,sep="")
-        
-        # Choose login method
-        choice = input("    -> ").strip()
-        client_socket.sendall(choice.encode())
-        
-        if choice == '1':
-            handle_owner_authentication(client_socket)
-        elif choice == '2':
-            customer_order_menu(client_socket)
-        else:
-            print(f"{t.red}Invalid choice.{t.end}")
+        while True:
+            client_socket = connect_to_server()
+            print(f"{t.cyan}{t.bold}\nWelcome to the Food Delivery Network!{t.end}")
+            
+            # Receive login method options from server
+            print(t.yellow,client_socket.recv(1024).decode().strip(),t.end,sep="")
+            
+            # Choose login method
+            choice = input("    -> ").strip()
+            client_socket.sendall(choice.encode())
+            
+            if choice == '1':
+                handle_owner_authentication(client_socket)
+                clear_terminal()
+            elif choice == '2':
+                customer_order_menu(client_socket)
+                clear_terminal()
+            elif choice =='3':
+                response = client_socket.recv(1024).decode().strip()
+                print(f"{t.cyan}{t.bold}{response}{t.end}")
+                break
+            else:
+                response = client_socket.recv(1024).decode().strip()
+                print(f"{t.red}{response}{t.end}")
 
-        client_socket.close()
+            client_socket.close()
     
     except:
         print(f"{t.red}Something is wrong!{t.end}")    

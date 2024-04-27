@@ -80,7 +80,7 @@ def handle_client(client_socket):
     print("Connection established with a client.")
     
     # Ask for login method
-    client_socket.sendall(b"[#] Login as a...\n[#] 1. Owner\n[#] 2. Customer\n[*] Enter your choice: ")
+    client_socket.sendall(b"[#] Login as a...\n[#] 1. Owner\n[#] 2. Customer\n[#] 3. Exit\n[*] Enter your choice: ")
     choice = client_socket.recv(1024).decode().strip()
     if choice == '1':
         authenticated, username = authenticate_owner(client_socket)
@@ -224,7 +224,10 @@ def handle_client(client_socket):
                 client_socket.sendall(b"[-] No such order with this number")
         else:
             print("-1")
+    elif choice == '3':
+        client_socket.sendall(b"Goodbye !")
     else:
+        client_socket.sendall(b"[-] Invalid choice")
         print("Invalid choice.")
 
     client_socket.close()
