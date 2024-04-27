@@ -25,8 +25,9 @@ def connect_to_server():
 
 def clear_terminal():
     for i in range(5, 0, -1):
-        print(f"{t.red}clearing in {i} seconds...{t.end}")
+        print(f"\r{t.red}clearing in {i} seconds...{t.end}", end='', flush=True)
         time.sleep(1)
+    print("\r", end='')
     os.system('cls')
 
 def printGUI(menu):
@@ -233,6 +234,7 @@ def main():
             else:
                 response = client_socket.recv(1024).decode().strip()
                 print(f"{t.red}{response}{t.end}")
+                clear_terminal()
 
             client_socket.close()
     
