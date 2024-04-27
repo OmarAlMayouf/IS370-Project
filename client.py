@@ -71,19 +71,23 @@ def handle_owner_authentication(client_socket):
             client_socket.sendall(name.encode()) # send item name
             response = client_socket.recv(1024).decode().strip()
             print(t.yellow,response,t.end,sep="")
-            price = float(input("    -> "))
-            client_socket.sendall(str(price).encode()) # send item price
-            
+            price = input("    -> ")
+            client_socket.sendall(price.encode()) # send item price
             response = client_socket.recv(1024).decode().strip()
-            print(t.yellow,response,t.end,sep="")
-            quantity = int(input("    -> "))
-            client_socket.sendall(str(quantity).encode()) # send item quantity
-            
-            response = client_socket.recv(1024).decode().strip()
-            if response == "1":
-                print(f"{t.green}[+] Successfully added!{t.end}")
+            if not price.isdigit():
+                print(t.red,response,t.end,sep="")
             else:
-                print(f"{t.red}[-] Invalid price or quantity format{t.end}") # added successfully
+                print(t.yellow,response,t.end,sep="")
+                quantity = input("    -> ")
+                client_socket.sendall(quantity.encode()) # send item quantity
+                response = client_socket.recv(1024).decode().strip()
+                if not quantity.isdigit():
+                    print(f"{t.red}[-] Invalid price or quantity format{t.end}")
+                else:
+                    if response == "1":
+                        print(f"{t.green}[+] Successfully added!{t.end}")
+                    else:
+                        print(f"{t.red}[-] Invalid price or quantity format{t.end}")
         elif choice == "2":
             print(t.yellow,response,t.end,sep="")
             name = input("    -> ")
@@ -238,8 +242,8 @@ def main():
 
             client_socket.close()
     
-    except:
-        print(f"{t.red}Something is wrong!{t.end}")    
+    except Exception as e:
+        print(f"{t.red}Something is wrong!{t.end} {str(e)}")
 
     
 if __name__ == "__main__":

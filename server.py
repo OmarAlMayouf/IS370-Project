@@ -94,17 +94,25 @@ def handle_client(client_socket):
                 client_socket.sendall(b"[*] Enter item name: ")
                 name = client_socket.recv(1024).decode().strip()
                 client_socket.sendall(b"[*] Enter item Price: ")
-                price = float(client_socket.recv(1024).decode().strip())
-                client_socket.sendall(b"[*] Enter item Quantity: ")
-                quantity = int(client_socket.recv(1024).decode().strip())
-                if quantity >= 0 and price >= 0:
-                    new_item = {name: {"price": price, "quantity": quantity}}
-                    menu = load_menu_from_file(menu_file_path)
-                    menu.update(new_item)
-                    save_menu_to_file(menu, menu_file_path)
-                    client_socket.sendall(b"1")
+                price = client_socket.recv(1024).decode().strip()
+                if not price.isdigit():
+                    client_socket.sendall(b"[-] Invalid Price format: ")
                 else:
-                    client_socket.sendall(b"0")
+                    price = float(price)
+                    client_socket.sendall(b"[*] Enter item Quantity: ")
+                    quantity = client_socket.recv(1024).decode().strip()
+                    if not quantity.isdigit():
+                        client_socket.sendall(b"[-] Invalid quantity format: ")
+                    else:
+                        quantity = int(quantity)
+                        if quantity >= 0 and price >= 0:
+                            new_item = {name: {"price": price, "quantity": quantity}}
+                            menu = load_menu_from_file(menu_file_path)
+                            menu.update(new_item)
+                            save_menu_to_file(menu, menu_file_path)
+                            client_socket.sendall(b"1")
+                        else:
+                            client_socket.sendall(b"0")
                 
             elif choice == "2":
                 client_socket.sendall(b"[*] Enter item name: ")
