@@ -166,7 +166,7 @@ def handle_client(client_socket):
         menu = load_menu_from_file(menu_file_path)
         menu = pickle.dumps(menu)  # Serialize menu data
         client_socket.sendall(menu)
-        
+        order_list = {}
         
         client_socket.sendall(b"[*] What would you like to order? (-1 to exit)")
         order = client_socket.recv(1024).decode().strip()
@@ -181,6 +181,8 @@ def handle_client(client_socket):
                     if int(quantity) < 1 or int(quantity) > int(max):
                         client_socket.sendall(b"[-] Invalid amount")
                     else:
+                        new = {item_name : quantity}
+                        order_list.update(new)
                         client_socket.sendall(b"[*] Would you like to add anything else? (1.yes / 2.no)")
                         choice = client_socket.recv(1024).decode().strip()
                         if choice.isdigit():
@@ -220,12 +222,87 @@ def handle_client(client_socket):
                                         elif confirmation == "2":
                                             client_socket.sendall(b"[-] Order Cancelled")
                             elif int(choice) == 1:
-                                print("loop")
+                                error = "0"
+                                while True:
+                                    client_socket.sendall(b"[*] What else would you like to order?")
+                                    order = client_socket.recv(1024).decode().strip()
+                                    item_name = get_itemname(order)
+                                    if item_name != -1:
+                                        max = get_quantity(item_name)
+                                        syntax = f"[*] Please enter a quantity (Max. {max})"
+                                        client_socket.sendall(syntax.encode())
+                                        quantity = client_socket.recv(1024).decode().strip()
+                                        if quantity.isdigit():
+                                            if int(quantity) < 1 or int(quantity) > int(max):
+                                                error = "1"
+                                                client_socket.sendall(b"[-] Invalid amount")
+                                                break
+                                            else:
+                                                new_item = {item_name : quantity}
+                                                order_list.update(new_item)
+                                                client_socket.sendall(b"[*] Would you like to add anything else? (1.yes / 2.no)")
+                                                choice = client_socket.recv(1024).decode().strip()      
+                                                if not choice.isdigit():
+                                                    error = "1"
+                                                    client_socket.sendall(b"[-] Invalid input format")
+                                                    break
+                                                elif choice != "2" and choice != "1":
+                                                    error = "1"
+                                                    client_socket.sendall(b"[-] Invalid input format")
+                                                    break
+                                                if choice == "2":
+                                                    break
+                                        else:
+                                            error = "1"
+                                            client_socket.sendall(b"[-] Invalid quantity format")
+                                            break
+                                    else:
+                                        error = "1"
+                                        client_socket.sendall(b"[-] No such order with this number")
+                                        break
+                                if error != "1":
+                                    menu = load_menu_from_file(menu_file_path)
+                                    total_price = 0.0
+                                    for i,k in order_list.items():
+                                        total_price += int(k) * float(menu[i]['price'])
+                                    string_total_price = f"[#] Total price for {quantity} {item_name}(s) is {float(total_price)} SR"
+                                    client_socket.sendall(string_total_price.encode())
+                                    client_socket.sendall("[#] Please fill your address\n[*] Enter your area: ".encode())
+                                    area = client_socket.recv(1024).decode().strip()
+                                    client_socket.sendall("[*] Enter your street: ".encode())
+                                    street = client_socket.recv(1024).decode().strip()
+                                    client_socket.sendall("[*] Enter your home/apt number: ".encode())
+                                    number = client_socket.recv(1024).decode().strip()
+                                    if not number.isdigit():
+                                        client_socket.sendall(b"[-] Invalid input format")
+                                    else:
+                                        payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
+                                        client_socket.sendall(payment.encode())
+                                        choice = client_socket.recv(1024).decode().strip()
+                                        if choice != "1":
+                                            client_socket.sendall(b"[-] Invalid input format")
+                                        else:
+                                            address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
+                                            summary = f"[#] Your order summary\n[#] Order: {quantity} {item_name}(s)\n[#] total price: {total_price} SR\n[#] Address: {address}"
+                                            client_socket.sendall(summary.encode())
+                                            client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
+                                            confirmation = client_socket.recv(1024).decode().strip()
+                                            if confirmation != "1" and confirmation != "2":
+                                                client_socket.sendall(b"[-] Invalid input format")
+                                            elif confirmation == "1":
+                                                number = random.randint(1000000,1500000)
+                                                number2 = random.randint(18,35)
+                                                print(f"New Order #{number}")
+                                                recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
+                                                client_socket.sendall(recipt.encode())
+                                            elif confirmation == "2":
+                                                client_socket.sendall(b"[-] Order Cancelled")
+                                else:
+                                    print("error")
                             else:
                                 client_socket.sendall(b"[-] Invalid input format Please choose 1 or 2")
                         else:
                             client_socket.sendall(b"[-] Invalid input format")
-                            
                 else:
                     client_socket.sendall(b"[-] Invalid input format")
             else:

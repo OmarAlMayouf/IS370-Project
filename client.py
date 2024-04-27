@@ -24,7 +24,7 @@ def connect_to_server():
     return client_socket
 
 def clear_terminal():
-    for i in range(5, 0, -1):
+    for i in range(2, 0, -1):
         print(f"\r{t.red}clearing in {i} seconds...{t.end}", end='', flush=True)
         time.sleep(1)
     print("\r", end='')
@@ -172,6 +172,88 @@ def customer_order_menu(client_socket):
                 if choice != "1" and choice != "2":
                     response = client_socket.recv(1024).decode().strip() # get response back
                     print(t.red,response,t.end,sep="")
+                elif choice == "1":
+                    error = "0"
+                    while True:
+                        response = client_socket.recv(1024).decode().strip()
+                        print(f"{t.yellow}{response}{t.end}") # print it
+                        order = input("    -> ") # enter order prompt
+                        client_socket.sendall(order.encode())
+                        response = client_socket.recv(1024).decode().strip()
+                        if response[1] == "-":
+                            error = "1"
+                            print(f"{t.red}{response}{t.end}")
+                            break
+                        else:
+                            print(f"{t.yellow}{response}{t.end}") # print it
+                            quantity = input("    -> ")
+                            client_socket.sendall(quantity.encode())
+                            response = client_socket.recv(1024).decode().strip()
+                            if quantity.isdigit():
+                                if response[1] == "-":
+                                    error = "1"
+                                    print(f"{t.red}{response}{t.end}")
+                                    break
+                                else:
+                                    print(f"{t.yellow}{response}{t.end}")
+                                    choice = input("    -> ")
+                                    client_socket.sendall(choice.encode())
+                                    if not choice.isdigit():
+                                        error = "1"
+                                        response = client_socket.recv(1024).decode().strip()
+                                        print(f"{t.red}{response}{t.end}")
+                                        break
+                                    elif choice != "2" and choice != "1":
+                                        error = "1"
+                                        response = client_socket.recv(1024).decode().strip()
+                                        print(f"{t.red}{response}{t.end}")
+                                        break
+                                    elif choice == "2":
+                                        break
+                            else:
+                                error = "1"
+                                print(f"{t.red}{response}{t.end}")
+                                break
+                    if error != "1":
+                        response = client_socket.recv(1024).decode().strip() # get total price
+                        print(t.yellow,response,t.end,sep="")
+                        response = client_socket.recv(1024).decode().strip()
+                        print(t.yellow,response,t.end,sep="") # print area
+                        area = input("    -> ")
+                        client_socket.sendall(area.encode())
+                        response = client_socket.recv(1024).decode().strip() 
+                        print(t.yellow,response,t.end,sep="") # print street
+                        street = input("    -> ")
+                        client_socket.sendall(street.encode())
+                        response = client_socket.recv(1024).decode().strip() 
+                        print(t.yellow,response,t.end,sep="") # print home number
+                        number = input("    -> ")
+                        client_socket.sendall(number.encode())
+                        if not number.isdigit():
+                            response = client_socket.recv(1024).decode().strip()
+                            print(t.red,response,t.end,sep="") # payment method
+                        else:
+                            response = client_socket.recv(1024).decode().strip()
+                            print(t.yellow,response,t.end,sep="") # payment method
+                            choice = input("    -> ")
+                            client_socket.sendall(choice.encode())
+                            response = client_socket.recv(1024).decode().strip()
+                            if response[1] == "-":
+                                print(t.red,response,t.end,sep="") # response
+                            else:
+                                print(t.yellow,response,t.end,sep="")
+                                response = client_socket.recv(1024).decode().strip()
+                                print(t.yellow,response,t.end,sep="") # confirm order?
+                                choice = input("    -> ")
+                                client_socket.sendall(choice.encode())
+                                response = client_socket.recv(1024).decode().strip()
+                                if response[1] == "-":
+                                    print(t.red,response,t.end,sep="")
+                                else:
+                                    print(t.green,response,t.end,sep="")
+
+
+
                 elif choice == "2":
                     response = client_socket.recv(1024).decode().strip() # get total price
                     print(t.yellow,response,t.end,sep="")
