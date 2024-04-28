@@ -10,12 +10,12 @@ owner_credentials = {"admin": "admin"}
 
 def load_menu_from_file(file_path):
     with open(file_path, 'r') as file:
-        menu_data = json.load(file)
-    return menu_data
+        menu = json.load(file)
+    return menu
 
-def save_menu_to_file(menu_data, file_path):
+def save_menu_to_file(menu, file_path):
     with open(file_path, 'w') as file:
-        json.dump(menu_data, file, indent=4)
+        json.dump(menu, file, indent=4)
 
 def update_price(file_path, item_name, new_price):
     menu = load_menu_from_file(file_path)

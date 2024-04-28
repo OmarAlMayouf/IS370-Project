@@ -184,8 +184,8 @@ def handle_owner_authentication(client_socket):
         print(t.red,response,t.end,sep="") # fail to authenticate
 
 def receive_menu(client_socket):
-    menu_data = client_socket.recv(1024)  # Receive menu data with appropriate buffer size
-    menu = pickle.loads(menu_data)  # Deserialize menu data
+    menu = client_socket.recv(1024)  # Receive menu data with appropriate buffer size
+    menu = pickle.loads(menu)  # Deserialize menu data
     return menu
 
 def customer_order_menu(client_socket):
