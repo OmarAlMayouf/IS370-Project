@@ -24,9 +24,12 @@ def connect_to_server():
     return client_socket
 
 def clear_terminal():
+    dots = ['.', '..', '...','....','.....','......']
+    k = 0
     for i in range(5, 0, -1):
-        print(f"\r{t.red}clearing in {i} seconds...{t.end}", end='', flush=True)
+        print(f"\r{t.red}clearing in {i} seconds{dots[k]}{t.end}", end='', flush=True)
         time.sleep(1)
+        k += 1
     print("\r", end='')
     os.system('cls')
 
@@ -222,38 +225,41 @@ def customer_order_menu(client_socket):
                         area = input("    -> ")
                         client_socket.sendall(area.encode())
                         response = client_socket.recv(1024).decode().strip() 
-                        print(t.yellow,response,t.end,sep="") # print street
-                        street = input("    -> ")
-                        client_socket.sendall(street.encode())
-                        response = client_socket.recv(1024).decode().strip() 
-                        print(t.yellow,response,t.end,sep="") # print home number
-                        number = input("    -> ")
-                        client_socket.sendall(number.encode())
-                        if not number.isdigit():
-                            response = client_socket.recv(1024).decode().strip()
-                            print(t.red,response,t.end,sep="") # payment method
+                        if area.isdigit():
+                            print(t.red,response,t.end,sep="")
                         else:
-                            response = client_socket.recv(1024).decode().strip()
-                            print(t.yellow,response,t.end,sep="") # payment method
-                            choice = input("    -> ")
-                            client_socket.sendall(choice.encode())
-                            response = client_socket.recv(1024).decode().strip()
-                            if response[1] == "-":
-                                print(t.red,response,t.end,sep="") # response
+                            print(t.yellow,response,t.end,sep="") # print street
+                            street = input("    -> ")
+                            client_socket.sendall(street.encode())
+                            response = client_socket.recv(1024).decode().strip() 
+                            if street.isdigit():
+                                print(t.red,response,t.end,sep="")
                             else:
-                                print(t.yellow,response,t.end,sep="")
-                                response = client_socket.recv(1024).decode().strip()
-                                print(t.yellow,response,t.end,sep="") # confirm order?
-                                choice = input("    -> ")
-                                client_socket.sendall(choice.encode())
-                                response = client_socket.recv(1024).decode().strip()
-                                if response[1] == "-":
-                                    print(t.red,response,t.end,sep="")
+                                print(t.yellow,response,t.end,sep="") # print home number
+                                number = input("    -> ")
+                                client_socket.sendall(number.encode())
+                                if not number.isdigit():
+                                    response = client_socket.recv(1024).decode().strip()
+                                    print(t.red,response,t.end,sep="") # payment method
                                 else:
-                                    print(t.green,response,t.end,sep="")
-
-
-
+                                    response = client_socket.recv(1024).decode().strip()
+                                    print(t.yellow,response,t.end,sep="") # payment method
+                                    choice = input("    -> ")
+                                    client_socket.sendall(choice.encode())
+                                    response = client_socket.recv(1024).decode().strip()
+                                    if response[1] == "-":
+                                        print(t.red,response,t.end,sep="") # response
+                                    else:
+                                        print(t.yellow,response,t.end,sep="")
+                                        response = client_socket.recv(1024).decode().strip()
+                                        print(t.yellow,response,t.end,sep="") # confirm order?
+                                        choice = input("    -> ")
+                                        client_socket.sendall(choice.encode())
+                                        response = client_socket.recv(1024).decode().strip()
+                                        if response[1] == "-":
+                                            print(t.red,response,t.end,sep="")
+                                        else:
+                                            print(t.green,response,t.end,sep="")
                 elif choice == "2":
                     response = client_socket.recv(1024).decode().strip() # get total price
                     print(t.yellow,response,t.end,sep="")
@@ -262,35 +268,40 @@ def customer_order_menu(client_socket):
                     area = input("    -> ")
                     client_socket.sendall(area.encode())
                     response = client_socket.recv(1024).decode().strip() 
-                    print(t.yellow,response,t.end,sep="") # print street
-                    street = input("    -> ")
-                    client_socket.sendall(street.encode())
-                    response = client_socket.recv(1024).decode().strip() 
-                    print(t.yellow,response,t.end,sep="") # print home number
-                    number = input("    -> ")
-                    client_socket.sendall(number.encode())
-                    if not number.isdigit():
-                        response = client_socket.recv(1024).decode().strip()
-                        print(t.red,response,t.end,sep="") # payment method
+                    if area.isdigit():
+                        print(t.red,response,t.end,sep="")
                     else:
-                        response = client_socket.recv(1024).decode().strip()
-                        print(t.yellow,response,t.end,sep="") # payment method
-                        choice = input("    -> ")
-                        client_socket.sendall(choice.encode())
-                        response = client_socket.recv(1024).decode().strip()
-                        if response[1] == "-":
-                            print(t.red,response,t.end,sep="") # response
+                        print(t.yellow,response,t.end,sep="") # print street
+                        street = input("    -> ")
+                        client_socket.sendall(street.encode())
+                        response = client_socket.recv(1024).decode().strip() 
+                        if street.isdigit():
+                            print(t.red,response,t.end,sep="")
                         else:
-                            print(t.yellow,response,t.end,sep="")
+                            print(t.yellow,response,t.end,sep="") # print home number
+                            number = input("    -> ")
+                            client_socket.sendall(number.encode())
                             response = client_socket.recv(1024).decode().strip()
-                            print(t.yellow,response,t.end,sep="") # confirm order?
-                            choice = input("    -> ")
-                            client_socket.sendall(choice.encode())
-                            response = client_socket.recv(1024).decode().strip()
-                            if response[1] == "-":
-                                print(t.red,response,t.end,sep="")
+                            if not number.isdigit():
+                                print(t.red,response,t.end,sep="") # payment method
                             else:
-                                print(t.green,response,t.end,sep="")
+                                print(t.yellow,response,t.end,sep="") # payment method
+                                choice = input("    -> ")
+                                client_socket.sendall(choice.encode())
+                                response = client_socket.recv(1024).decode().strip()
+                                if response[1] == "-":
+                                    print(t.red,response,t.end,sep="") # response
+                                else:
+                                    print(t.yellow,response,t.end,sep="")
+                                    response = client_socket.recv(1024).decode().strip()
+                                    print(t.yellow,response,t.end,sep="") # confirm order?
+                                    choice = input("    -> ")
+                                    client_socket.sendall(choice.encode())
+                                    response = client_socket.recv(1024).decode().strip()
+                                    if response[1] == "-":
+                                        print(t.red,response,t.end,sep="")
+                                    else:
+                                        print(t.green,response,t.end,sep="")
         else:
             print(t.red,response,t.end,sep="")
     

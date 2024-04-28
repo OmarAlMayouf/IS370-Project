@@ -193,34 +193,40 @@ def handle_client(client_socket):
                                 client_socket.sendall(string_total_price.encode())
                                 client_socket.sendall("[#] Please fill your address\n[*] Enter your area: ".encode())
                                 area = client_socket.recv(1024).decode().strip()
-                                client_socket.sendall("[*] Enter your street: ".encode())
-                                street = client_socket.recv(1024).decode().strip()
-                                client_socket.sendall("[*] Enter your home/apt number: ".encode())
-                                number = client_socket.recv(1024).decode().strip()
-                                if not number.isdigit():
-                                    client_socket.sendall(b"[-] Invalid input format")
+                                if area.isdigit():
+                                    client_socket.sendall(b"[-] Invalid input format {area cannot be digit}")
                                 else:
-                                    payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
-                                    client_socket.sendall(payment.encode())
-                                    choice = client_socket.recv(1024).decode().strip()
-                                    if choice != "1":
-                                        client_socket.sendall(b"[-] Invalid input format")
+                                    client_socket.sendall("[*] Enter your street: ".encode())
+                                    street = client_socket.recv(1024).decode().strip()
+                                    if street.isdigit():
+                                        client_socket.sendall(b"[-] Invalid input format {street cannot be digit}")
                                     else:
-                                        address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
-                                        summary = f"[#] Your order summary\n[#] Order: {quantity} {item_name}(s)\n[#] total price: {total_price} SR\n[#] Address: {address}"
-                                        client_socket.sendall(summary.encode())
-                                        client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
-                                        confirmation = client_socket.recv(1024).decode().strip()
-                                        if confirmation != "1" and confirmation != "2":
-                                            client_socket.sendall(b"[-] Invalid input format")
-                                        elif confirmation == "1":
-                                            number = random.randint(1000000,1500000)
-                                            number2 = random.randint(18,35)
-                                            print(f"New Order #{number}")
-                                            recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
-                                            client_socket.sendall(recipt.encode())
-                                        elif confirmation == "2":
-                                            client_socket.sendall(b"[-] Order Cancelled")
+                                        client_socket.sendall("[*] Enter your home/apt number: ".encode())
+                                        number = client_socket.recv(1024).decode().strip()
+                                        if not number.isdigit():
+                                            client_socket.sendall(b"[-] Invalid input format {home/apt number must be digit}")
+                                        else:
+                                            payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
+                                            client_socket.sendall(payment.encode())
+                                            choice = client_socket.recv(1024).decode().strip()
+                                            if choice != "1":
+                                                client_socket.sendall(b"[-] Invalid input format")
+                                            else:
+                                                address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
+                                                summary = f"[#] Your order summary\n[#] Order: {quantity} {item_name}(s)\n[#] total price: {total_price} SR\n[#] Address: {address}"
+                                                client_socket.sendall(summary.encode())
+                                                client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
+                                                confirmation = client_socket.recv(1024).decode().strip()
+                                                if confirmation != "1" and confirmation != "2":
+                                                    client_socket.sendall(b"[-] Invalid input format")
+                                                elif confirmation == "1":
+                                                    number = random.randint(1000000,1500000)
+                                                    number2 = random.randint(18,35)
+                                                    print(f"New Order #{number}")
+                                                    recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
+                                                    client_socket.sendall(recipt.encode())
+                                                elif confirmation == "2":
+                                                    client_socket.sendall(b"[-] Order Cancelled")
                             elif int(choice) == 1:
                                 error = "0"
                                 while True:
@@ -269,39 +275,45 @@ def handle_client(client_socket):
                                     client_socket.sendall(string_total_price.encode())
                                     client_socket.sendall("[#] Please fill your address\n[*] Enter your area: ".encode())
                                     area = client_socket.recv(1024).decode().strip()
-                                    client_socket.sendall("[*] Enter your street: ".encode())
-                                    street = client_socket.recv(1024).decode().strip()
-                                    client_socket.sendall("[*] Enter your home/apt number: ".encode())
-                                    number = client_socket.recv(1024).decode().strip()
-                                    if not number.isdigit():
-                                        client_socket.sendall(b"[-] Invalid input format")
+                                    if area.isdigit():
+                                        client_socket.sendall(b"[-] Invalid input format {area cannot be digit}")
                                     else:
-                                        payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
-                                        client_socket.sendall(payment.encode())
-                                        choice = client_socket.recv(1024).decode().strip()
-                                        if choice != "1":
-                                            client_socket.sendall(b"[-] Invalid input format")
+                                        client_socket.sendall("[*] Enter your street: ".encode())
+                                        street = client_socket.recv(1024).decode().strip()
+                                        if street.isdigit():
+                                            client_socket.sendall(b"[-] Invalid input format {street cannot be digit}")
                                         else:
-                                            address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
-                                            syntax = "Order: "
-                                            result = ""
-                                            for i, k in order_list.items():
-                                                 new = f"{k} {i}(s), "
-                                                 result += new
-                                            summary = f"[#] Your order summary\n[#] {syntax}{result}\n[#] total price: {total_price} SR\n[#] Address: {address}"
-                                            client_socket.sendall(summary.encode())
-                                            client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
-                                            confirmation = client_socket.recv(1024).decode().strip()
-                                            if confirmation != "1" and confirmation != "2":
-                                                client_socket.sendall(b"[-] Invalid input format")
-                                            elif confirmation == "1":
-                                                number = random.randint(1000000,1500000)
-                                                number2 = random.randint(18,35)
-                                                print(f"New Order #{number}")
-                                                recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
-                                                client_socket.sendall(recipt.encode())
-                                            elif confirmation == "2":
-                                                client_socket.sendall(b"[-] Order Cancelled")
+                                            client_socket.sendall("[*] Enter your home/apt number: ".encode())
+                                            number = client_socket.recv(1024).decode().strip()
+                                            if not number.isdigit():
+                                                client_socket.sendall(b"[-] Invalid input format {home/apt number must be digit}")
+                                            else:
+                                                payment = "[#] Please Enter a payment method\n[#] 1.Cash On Delivery\n[#] 2.CreditCard(Unavailable right now)\n[*] Enter your choice: "
+                                                client_socket.sendall(payment.encode())
+                                                choice = client_socket.recv(1024).decode().strip()
+                                                if choice != "1":
+                                                    client_socket.sendall(b"[-] Invalid input format")
+                                                else:
+                                                    address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
+                                                    syntax = "Order: "
+                                                    result = ""
+                                                    for i, k in order_list.items():
+                                                        new = f"{k} {i}(s), "
+                                                        result += new
+                                                    summary = f"[#] Your order summary\n[#] {syntax}{result}\n[#] total price: {total_price} SR\n[#] Address: {address}"
+                                                    client_socket.sendall(summary.encode())
+                                                    client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
+                                                    confirmation = client_socket.recv(1024).decode().strip()
+                                                    if confirmation != "1" and confirmation != "2":
+                                                        client_socket.sendall(b"[-] Invalid input format")
+                                                    elif confirmation == "1":
+                                                        number = random.randint(1000000,1500000)
+                                                        number2 = random.randint(18,35)
+                                                        print(f"New Order #{number}")
+                                                        recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
+                                                        client_socket.sendall(recipt.encode())
+                                                    elif confirmation == "2":
+                                                        client_socket.sendall(b"[-] Order Cancelled")
                                 else:
                                     print("error")
                             else:
