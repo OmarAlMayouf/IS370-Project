@@ -265,7 +265,7 @@ def handle_client(client_socket):
                                     total_price = 0.0
                                     for i,k in order_list.items():
                                         total_price += int(k) * float(menu[i]['price'])
-                                    string_total_price = f"[#] Total price for {quantity} {item_name}(s) is {float(total_price)} SR"
+                                    string_total_price = f"[#] Total price for your order is {float(total_price)} SR"
                                     client_socket.sendall(string_total_price.encode())
                                     client_socket.sendall("[#] Please fill your address\n[*] Enter your area: ".encode())
                                     area = client_socket.recv(1024).decode().strip()
@@ -283,7 +283,12 @@ def handle_client(client_socket):
                                             client_socket.sendall(b"[-] Invalid input format")
                                         else:
                                             address = f"\n\tArea: {area}\n\tStreet: {street}\n\tHome/Apt: {number}"
-                                            summary = f"[#] Your order summary\n[#] Order: {quantity} {item_name}(s)\n[#] total price: {total_price} SR\n[#] Address: {address}"
+                                            syntax = "Order: "
+                                            result = ""
+                                            for i, k in order_list.items():
+                                                 new = f"{k} {i}(s), "
+                                                 result += new
+                                            summary = f"[#] Your order summary\n[#] {syntax}{result}\n[#] total price: {total_price} SR\n[#] Address: {address}"
                                             client_socket.sendall(summary.encode())
                                             client_socket.sendall(b"[*] Confirm order? (1.yes/2.no)")
                                             confirmation = client_socket.recv(1024).decode().strip()
