@@ -225,6 +225,7 @@ def handle_client(client_socket):
                                                     print(f"New Order #{number}")
                                                     recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
                                                     client_socket.sendall(recipt.encode())
+                                                    update_quantity(menu_file_path, item_name, (int(max) - int(quantity)))
                                                 elif confirmation == "2":
                                                     client_socket.sendall(b"[-] Order Cancelled")
                             elif int(choice) == 1:
@@ -312,6 +313,10 @@ def handle_client(client_socket):
                                                         print(f"New Order #{number}")
                                                         recipt = f"Thank You For Ordering\nYour Order number is #{number}\nEstimated time = {number2}"
                                                         client_socket.sendall(recipt.encode())
+                                                        for i, k in order_list.items():
+                                                            max = int(get_quantity(i))
+                                                            new = max - int(k)
+                                                            update_quantity(menu_file_path, i, new)
                                                     elif confirmation == "2":
                                                         client_socket.sendall(b"[-] Order Cancelled")
                                 else:
